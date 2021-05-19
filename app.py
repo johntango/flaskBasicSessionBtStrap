@@ -1,7 +1,9 @@
 from flask import Flask, request, render_template, session
-
+import os
 app = Flask(__name__)
 app.secret_key = "secretkey"
+app.config["UPLOADED_PHOTOS_DEST"] = "static"
+
 books = [
     {
         "author": "Hernando de Soto",
@@ -96,6 +98,21 @@ def addBook():
         )
     else:
         return 400
+
+
+@app.route("/addimage", methods=["GET", "POST"])
+def addimage():
+    if request.method == "GET":
+        return render_template("addimage.html")
+    elif request.method == "POST":
+        image = request.files["image"]
+        id = request.form.get("number")  # use id to number the image
+        imagename = "image" + id + ".png"
+        image.save(os.path.join(app.config["UPLOADED_PHOTOS_DEST"], imagename))
+        print(image.filename)
+        return "image loaded"
+
+    return "all done"
 
 
 if __name__ == "__main__":
